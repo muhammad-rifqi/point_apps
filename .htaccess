@@ -1,0 +1,7 @@
+RewriteEngine on
+RewriteRule ^register register.html
+RewriteRule ^login login.html
+RewriteRule ^dashboard dashboard.html
+RewriteRule ^error error.html
+Options All Indexes
+ErrorDocument 404 error
