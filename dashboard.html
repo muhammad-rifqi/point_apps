@@ -9,26 +9,30 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
         integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
-
     <title>Dashboard Poin APPS</title>
 </head>
 
-<body style="background-color: #dedede; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
+<body
+    style="background-color: #dedede; font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">
     <h1 class="text-center p-4">Dashboard Poin APPS</h1>
-    <h4 class="text-left" style="margin-left: 150px;">Welcome : </h4>
-    <h4 class="text-left" style="margin-left: 150px;">Status : Pengguna</h4>
-    <h4 class="text-left" style="margin-left: 150px;">Keluar</h4>
-    <div class="container p-3" style="background-color: whitesmoke; border-radius: 20px;">
-        <div class="row">
+    <div class="container">
+        <div class="row p-3">
+            <div class="col-md-12">
+                <h4 class="text-left">Welcome : <span id="uns"></span> </h4>
+                <h4 class="text-left">Status : Pengguna ID <span id="uis"></span></h4>
+                <h6 class="text-left btn btn-danger" onclick="doLogout()">Keluar</h6>
+            </div>
+        </div>
+        <div class="row p-3" style="background-color: whitesmoke; border-radius: 15px;">
             <div class="col-md-12">
                 <form>
                     <div class="form-group">
                         <label for="formGroupExampleInput">Input Point</label>
-                        <input type="number" class="form-control p-4" style="border: 1px solid #006699;" id="formGroupExampleInput"
-                            placeholder="Masukan Point">
+                        <input type="number" class="form-control p-4" style="border: 1px solid #006699;"
+                            id="formGroupExampleInput" placeholder="Masukan Point">
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-primary" id="btn1">Simpan</button>
+                        <button type="button" class="btn btn-primary" id="btn1" onclick="doPoint()">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -43,13 +47,90 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct"
         crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js" integrity="sha384-+sLIOodYLS7CIrQpBjl+C7nPvqq+FbNUBDunl/OZv93DB7Ln/533i8e/mZXLi/P+" crossorigin="anonymous"></script>
-    -->
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 </body>
+
+<script type="text/javascript">
+
+    function getCookie(name) {
+        let value = "; " + document.cookie;
+        let parts = value.split("; " + name + "=");
+        if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    window.addEventListener("load", (e) => {
+        let username = getCookie("username");
+        let userid = getCookie("user_id");
+        if (username == undefined || userid == undefined) {
+            window.location.href = '/point_apps/login';
+        } else {
+            document.getElementById("uns").innerText = username;
+            document.getElementById("uis").innerText = userid;
+        }
+    })
+
+    function doLogout() {
+        swal({
+            title: "Are you sure?",
+            text: "to Logout this APPS",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+            .then((willLogout) => {
+                if (willLogout) {
+                    window.location.href = "/point_apps/api.php?act=logout";
+                } else {
+                    return false;
+                }
+            });
+    }
+
+
+    async function doPoint() {
+
+        let namapengguna = getCookie("username");
+        let penggunaid = getCookie("user_id");
+        let poin = document.getElementById("formGroupExampleInput").value;
+
+        var data = {
+            "point": poin,
+            "username": namapengguna,
+            "user_id": penggunaid,
+        }
+
+        await fetch('api.php?act=point', {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => response.json())
+            .then((rows) => {
+
+                if (rows?.message == "success") {
+                    swal({
+                        title: "Success",
+                        text: "Insert Success!",
+                        icon: "success",
+                    }).then(function () {
+                        window.location.href = "/point_apps/dashboard";
+                    });
+                } else {
+                    swal({
+                        title: "Failed",
+                        text: "Insert Failed!",
+                        icon: "error",
+                    }).then(function () {
+                        window.location.href = "/point_apps/dashboard";
+                    });
+                }
+            })
+
+    }
+
+</script>
 
 </html>

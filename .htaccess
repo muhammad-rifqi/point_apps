@@ -1,5 +1,7 @@
 RewriteEngine on
 RewriteRule ^login login.html
 RewriteRule ^dashboard dashboard.html
+RewriteRule ^member member.html
+RewriteRule ^ranking ranking.html
 Options All Indexes
 ErrorDocument 404 http://localhost/point_apps/error.html
